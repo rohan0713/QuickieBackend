@@ -156,5 +156,23 @@ def get_profileImage(image_id):
     
     return jsonify({'status': 'failed', 'message': 'Image not found.'})
 
+@app.route('/getProfile', methods=['GET'])
+def getDocument():
+    
+    dbs = client.quickie
+    collection = dbs.users
+
+    email = request.args.get('email')
+    print(email)
+    query = {"email": email}
+
+    result = collection.find_one(query)
+    if result is None:
+        data = {"status" : False, "message": "user not found"}
+        return jsonify(data)
+    else :
+        data = {"status" : True, "profile": result["profile"], "posts": result["posts"]}
+        return jsonify(data)
+
 if __name__ == '__main__':
     app.run(debug=True)
