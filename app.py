@@ -62,17 +62,29 @@ def authenticateUser():
 def upload_image():
 
     dbs = client.quickie
-    collection = dbs.users
+    collection1 = dbs.users
+    collection2 = dbs.photos
 
     if 'image' in request.files:
         image = request.files['image']
+        email = request.form.get('email')
+
         if image.filename != '':
             # Convert image to binary format
             image_binary = Binary(image.read())
 
             # Save image to MongoDB
-            image_id = str(collection.insert_one({'image': image_binary}).inserted_id)
-
+            image_id = str(collection2.insert_one({'email': email , 'image': image_binary}).inserted_id)
+            collection1.update_one(
+                {"email": email},
+                {
+                    "$push": {
+                        "posts": {
+                            "$each": [image_id]
+                    }
+                    }
+                }
+            )
             return jsonify({'status': 'success', 'image_id': image_id})
     
     return jsonify({'status': 'failed', 'message': 'Image upload failed.'})
@@ -81,7 +93,7 @@ def upload_image():
 def get_image(image_id):
 
     dbs = client.quickie
-    collection = dbs.users
+    collection = dbs.photos
 
     image_data = collection.find_one({'_id': ObjectId(image_id)})
     if image_data:
@@ -100,6 +112,49 @@ def checkExistence(email):
         return False
     else :
         return True
+
+@app.route('/upload/profile', methods=['POST'])
+def upload_profileImage():
+
+    dbs = client.quickie
+    collection1 = dbs.users
+    collection2 = dbs.photos
+
+    if 'image' in request.files:
+        image = request.files['image']
+        email = request.form.get('email')
+
+        if image.filename != '':
+            # Convert image to binary format
+            image_binary = Binary(image.read())
+
+            # Save image to MongoDB
+            image_id = str(collection2.insert_one({'email': email , 'image': image_binary}).inserted_id)
+            collection1.update_one(
+                {"email": email},
+                {
+                    "$set": {
+                        "profile": image_id
+                    }
+                }
+            )
+            return jsonify({'status': 'success', 'image_id': image_id})
     
+    return jsonify({'status': 'failed', 'message': 'Image upload failed.'})
+
+
+@app.route('/api/images/profile/<image_id>', methods=['GET'])
+def get_profileImage(image_id):
+
+    dbs = client.quickie
+    collection = dbs.photos
+
+    image_data = collection.find_one({'_id': ObjectId(image_id)})
+    if image_data:
+        image_binary = image_data['image']
+        return send_file(io.BytesIO(image_binary), mimetype='image/jpeg')
+    
+    return jsonify({'status': 'failed', 'message': 'Image not found.'})
+
 if __name__ == '__main__':
     app.run(debug=True)
