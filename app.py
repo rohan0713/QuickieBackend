@@ -103,7 +103,7 @@ def get_image(image_id):
     return jsonify({'status': 'failed', 'message': 'Image not found.'})
 
 def checkExistence(email):
-    dbs = client.cleanHires
+    dbs = client.quickie
     collection = dbs.users
 
     query = {"email" : email}
@@ -171,8 +171,17 @@ def getDocument():
         data = {"status" : False, "message": "user not found"}
         return jsonify(data)
     else :
-        data = {"status" : True, "profile": result["profile"], "posts": result["posts"]}
-        return jsonify(data)
+        profile = 'profile'
+        posts = 'posts'
+
+        if profile in result and posts in result:
+            print(result[profile])
+            print(result[posts])
+            data = {"status" : True, "profile": result["profile"], "posts": result["posts"]}
+            return jsonify(data)
+        else :
+            data = {"status": False, "message": "No data found"}
+            return jsonify(data)
 
 if __name__ == '__main__':
     app.run(debug=True)
