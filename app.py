@@ -85,7 +85,7 @@ def upload_image():
                     }
                 }
             )
-            return jsonify({'status': 'success', 'image_id': image_id})
+            return jsonify({'status': 'success', 'message': image_id})
     
     return jsonify({'status': 'failed', 'message': 'Image upload failed.'})
 
@@ -123,6 +123,7 @@ def upload_profileImage():
     if 'image' in request.files:
         image = request.files['image']
         email = request.form.get('email')
+        username = request.form.get('username')
 
         if image.filename != '':
             # Convert image to binary format
@@ -134,11 +135,12 @@ def upload_profileImage():
                 {"email": email},
                 {
                     "$set": {
-                        "profile": image_id
+                        "profile": image_id,
+                        "username": username
                     }
                 }
             )
-            return jsonify({'status': 'success', 'image_id': image_id})
+            return jsonify({'status': 'success', 'message': image_id})
     
     return jsonify({'status': 'failed', 'message': 'Image upload failed.'})
 
