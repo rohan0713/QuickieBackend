@@ -179,10 +179,10 @@ def getDocument():
         if profile in result and posts in result:
             print(result[profile])
             print(result[posts])
-            data = {"status" : True, "profile": result["profile"], "posts": result["posts"]}
+            data = {"status" : True, "profile": result["profile"], "posts": result["posts"], "username": result["username"]}
             return jsonify(data)
         else :
-            data = {"status": False, "message": "No data found"}
+            data = {"status": False, "message": "No data found", "username": result["username"]}
             return jsonify(data)
 
 if __name__ == '__main__':
